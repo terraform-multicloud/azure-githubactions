@@ -1,36 +1,43 @@
 name: TerraformAzurePipeline
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 jobs:
-    SetUp:
-        name: environment setup
-        runs-on: ubuntu-latest
+  SetUp:
+    name: environment setup
+    runs-on: ubuntu-latest
 
-        env:
-            ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-            ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-            ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-            ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
-        steps:
-            - name: Checkout repository again
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository again
+        uses: actions/checkout@v4
 
-            - name: Setup Terraform
-              uses: hashicorp/setup-terraform@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-            - name: Terraform Init
-              run: terraform init
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5.1.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
 
-            - name: Terraform Validate
-              run: terraform validate -no-color
+      - name: Terraform Init
+        run: terraform init
 
-            - name: Terraform Plan
-              run: terraform plan -out=tfplan
+      - name: Terraform Validate
+        run: terraform validate -no-color
 
-            - name: Terraform Apply
-              run: terraform apply -auto-approve tfplan
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan

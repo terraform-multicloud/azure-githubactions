@@ -14,5 +14,5 @@ provider "azurerm" {
 }
 resource "azurerm_resource_group" "one" {
     name     = "himanshu-resource-githubaction"
-    location = "East US"
+    location = "West US"
 }
